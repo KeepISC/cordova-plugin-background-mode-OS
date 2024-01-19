@@ -22,6 +22,7 @@
 package de.appplant.cordova.plugin.background;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.*;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -78,11 +79,16 @@ public class BackgroundMode extends CordovaPlugin {
         }
     };
 
+ 
+    // Update to support android version 12+
+    private PendingIntent pendingIntent = null;
+
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
         IntentFilter filter = new IntentFilter();
         filter.addAction("com.backgroundmode.close" + cordova.getContext().getPackageName());
+        createPendingIntent();
         cordova.getActivity().registerReceiver(receiver, filter);
 
     }
@@ -111,6 +117,8 @@ public class BackgroundMode extends CordovaPlugin {
                             CallbackContext callback)
     {
         boolean validAction = true;
+
+        createPendingIntent();
 
         switch (action)
         {
@@ -186,7 +194,8 @@ public class BackgroundMode extends CordovaPlugin {
      * Enable the background mode.
      */
     private void enableMode()
-    {
+    {   
+        createPendingIntent();
         isDisabled = false;
 
         if (inBackground) {
@@ -269,6 +278,20 @@ public class BackgroundMode extends CordovaPlugin {
         }
 
         isBind = true;
+    }
+
+ // Update version to support android 12+
+    private void createPendingIntent() {
+        if (pendingIntent == null) {
+            Activity activity = getActivity();
+            Intent intent = new Intent(activity, activity.getClass());
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                pendingIntent = PendingIntent.getActivity(activity, 0, intent, PendingIntent.FLAG_MUTABLE);
+            } else {
+                pendingIntent = PendingIntent.getActivity(activity, 0, intent, 0);
+            }
+        }
     }
 
     /**
