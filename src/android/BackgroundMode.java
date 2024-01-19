@@ -283,7 +283,7 @@ public class BackgroundMode extends CordovaPlugin {
  // Update version to support android 12+
     private void createPendingIntent() {
         if (pendingIntent == null) {
-            Activity activity = getActivity();
+            Activity activity = cordova.getActivity();
             Intent intent = new Intent(activity, activity.getClass());
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
