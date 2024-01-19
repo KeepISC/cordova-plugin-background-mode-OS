@@ -152,6 +152,7 @@ public class BackgroundMode extends CordovaPlugin {
     @Override
     public void onPause(boolean multitasking)
     {
+        createPendingIntent();
         try {
             inBackground = true;
             startService();
@@ -281,7 +282,7 @@ public class BackgroundMode extends CordovaPlugin {
     }
 
  // Update version to support android 12+
-    private void createPendingIntent() {
+    public void createPendingIntent() {
         if (pendingIntent == null) {
             Activity activity = cordova.getActivity();
             Intent intent = new Intent(activity, activity.getClass());
