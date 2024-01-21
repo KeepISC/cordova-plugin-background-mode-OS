@@ -22,7 +22,6 @@
 package de.appplant.cordova.plugin.background;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.*;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -251,7 +250,7 @@ public class BackgroundMode extends CordovaPlugin {
         if (isDisabled || isBind)
             return;
 
-        Intent intent = new Intent(context, ForegroundService.class, PendingIntent.FLAG_IMMUTABLE);
+        Intent intent = new Intent(context, ForegroundService.class);
 
         try {
             context.bindService(intent, connection, BIND_AUTO_CREATE);
