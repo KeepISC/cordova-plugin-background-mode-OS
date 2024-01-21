@@ -80,19 +80,6 @@ public class BackgroundMode extends CordovaPlugin {
     };
 
  
-    // Update to support android version 12+
-    private PendingIntent pendingIntent = null;
-
-    @Override
-    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-        super.initialize(cordova, webView);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("com.backgroundmode.close" + cordova.getContext().getPackageName());
-        createPendingIntent();
-        cordova.getActivity().registerReceiver(receiver, filter);
-
-    }
-
     private BroadcastReceiver receiver = new BroadcastReceiver() {
 
         @Override
@@ -117,8 +104,6 @@ public class BackgroundMode extends CordovaPlugin {
                             CallbackContext callback)
     {
         boolean validAction = true;
-
-        createPendingIntent();
 
         switch (action)
         {
@@ -152,7 +137,6 @@ public class BackgroundMode extends CordovaPlugin {
     @Override
     public void onPause(boolean multitasking)
     {
-        createPendingIntent();
         try {
             inBackground = true;
             startService();
@@ -196,7 +180,6 @@ public class BackgroundMode extends CordovaPlugin {
      */
     private void enableMode()
     {   
-        createPendingIntent();
         isDisabled = false;
 
         if (inBackground) {
@@ -268,7 +251,7 @@ public class BackgroundMode extends CordovaPlugin {
         if (isDisabled || isBind)
             return;
 
-        Intent intent = new Intent(context, ForegroundService.class);
+        Intent intent = new Intent(context, ForegroundService.class, PendingIntent.FLAG_IMMUTABLE);
 
         try {
             context.bindService(intent, connection, BIND_AUTO_CREATE);
@@ -281,19 +264,6 @@ public class BackgroundMode extends CordovaPlugin {
         isBind = true;
     }
 
- // Update version to support android 12+
-    public void createPendingIntent() {
-        if (pendingIntent == null) {
-            Activity activity = cordova.getActivity();
-            Intent intent = new Intent(activity, activity.getClass());
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                pendingIntent = PendingIntent.getActivity(activity, 0, intent, PendingIntent.FLAG_MUTABLE);
-            } else {
-                pendingIntent = PendingIntent.getActivity(activity, 0, intent, 0);
-            }
-        }
-    }
 
     /**
      * Bind the activity to a background service and put them into foreground
